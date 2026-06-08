@@ -836,6 +836,8 @@ body {
   color: var(--gray-800);
   line-height: 1.15;
   margin-bottom: var(--space-lg);
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 .section-header h2 .accent { color: var(--orange); }
 .section-header p {
@@ -1520,6 +1522,7 @@ body {
 .cards-carousel {
   position: relative;
   padding-top: var(--space-lg);
+  overflow-x: hidden;
 }
 .konto-card[hidden] {
   display: none !important;
@@ -1833,6 +1836,9 @@ body {
     top: -10px;
     font-size: 12px;
     padding: 4px 12px;
+    max-width: 100%;
+    white-space: normal;
+    text-align: right;
   }
   .features-list li { font-size: var(--text-home-body-size); }
   .card-footer { padding: 8px 18px 16px; }

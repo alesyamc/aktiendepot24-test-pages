@@ -1,5 +1,5 @@
-function scrollBusinesskontoFinderIntoView() {
-  var finder = document.getElementById('businesskonto-finder');
+function scrollDepotFinderIntoView() {
+  var finder = document.getElementById('depot-finder') || document.getElementById('businesskonto-finder');
   if (!finder) return;
 
   var target = finder.querySelector('.section-header') || finder;
@@ -15,295 +15,308 @@ function scrollBusinesskontoFinderIntoView() {
 }
 
 (function() {
-var heroFinder = document.querySelector('[data-hero-finder]');
-if (!heroFinder) return;
+  var heroFinder = document.querySelector('[data-hero-finder]');
+  if (!heroFinder) return;
 
-var hQ1 = null;
-var hContinueBtn = heroFinder.querySelector('[data-hero-action="continue"]');
+  var hQ1 = null;
+  var hContinueBtn = heroFinder.querySelector('[data-hero-action="continue"]');
 
-function setHeroProgressSelected() {
-  var dot1 = heroFinder.querySelector('[data-hero-step-dot="1"]');
-  var dot2 = heroFinder.querySelector('[data-hero-step-dot="2"]');
-  var line1 = heroFinder.querySelector('[data-hero-step-line="1"]');
-  if (!dot1 || !dot2 || !line1) return;
+  function setHeroProgressSelected() {
+    var dot1 = heroFinder.querySelector('[data-hero-step-dot="1"]');
+    var dot2 = heroFinder.querySelector('[data-hero-step-dot="2"]');
+    var line1 = heroFinder.querySelector('[data-hero-step-line="1"]');
+    if (!dot1 || !dot2 || !line1) return;
 
-  dot1.classList.remove('is-active');
-  dot1.classList.add('is-done');
-  line1.classList.add('is-done');
-  dot2.classList.add('is-active');
-}
-
-function handOffToMainFinder() {
-  if (!hQ1) return;
-
-  document.dispatchEvent(new CustomEvent('aktiendepot24:heroFinderSelected', {
-    detail: { q1: hQ1 }
-  }));
-
-  var mainFinder = document.getElementById('businesskonto-finder');
-  if (mainFinder) scrollBusinesskontoFinderIntoView();
-}
-
-heroFinder.addEventListener('click', function(event) {
-  var q1Button = event.target.closest('[data-hero-q1]');
-  if (q1Button) {
-    hQ1 = q1Button.dataset.heroQ1;
-    heroFinder.querySelectorAll('[data-hero-q1]').forEach(function(btn) {
-      btn.classList.toggle('is-selected', btn === q1Button);
-    });
-    hContinueBtn.disabled = false;
-    setHeroProgressSelected();
-    handOffToMainFinder();
-    return;
+    dot1.classList.remove('is-active');
+    dot1.classList.add('is-done');
+    line1.classList.add('is-done');
+    dot2.classList.add('is-active');
   }
 
-  var actionButton = event.target.closest('[data-hero-action="continue"]');
-  if (actionButton) handOffToMainFinder();
-});
+  function handOffToMainFinder() {
+    if (!hQ1) return;
+
+    document.dispatchEvent(new CustomEvent('aktiendepot24:heroFinderSelected', {
+      detail: { q1: hQ1 }
+    }));
+
+    scrollDepotFinderIntoView();
+  }
+
+  heroFinder.addEventListener('click', function(event) {
+    var q1Button = event.target.closest('[data-hero-q1]');
+    if (q1Button) {
+      hQ1 = q1Button.dataset.heroQ1;
+      heroFinder.querySelectorAll('[data-hero-q1]').forEach(function(btn) {
+        btn.classList.toggle('is-selected', btn === q1Button);
+      });
+      if (hContinueBtn) hContinueBtn.disabled = false;
+      setHeroProgressSelected();
+      handOffToMainFinder();
+      return;
+    }
+
+    var actionButton = event.target.closest('[data-hero-action="continue"]');
+    if (actionButton) handOffToMainFinder();
+  });
 })();
 
 (function() {
-var fQ1 = null, fQ2 = null;
-var fQ1FromHero = false;
-var fLogos = {
-  'Finom':         '../images/mini-logos/finom.svg',
-  'Kontist':       '../images/mini-logos/kontist.png',
-  'Holvi':         '../images/mini-logos/holvi.webp',
-  'FYRST':         '../images/mini-logos/fyrst.svg',
-  'Qonto':         '../images/mini-logos/qonto.png',
-  'Vivid Business':'../images/mini-logos/vivid-money.png'
-};
-var fQ1Labels = {
-  einzelunternehmer: 'Freelancer / Selbstständig',
-  gruender: 'Gründer / Startup',
-  gmbh: 'GmbH oder UG',
-  teams: 'Team / Unternehmen'
-};
-var fDB = {
-  einzelunternehmer: {
-    kostenlos: [
-      { name:'Finom', tag:'Konto & Buchhaltung in einer App', pros:['Solo-Tarif dauerhaft kostenlos','Sofort-IBAN in wenigen Minuten','Rechnungsstellung inklusive'], price:'Solo-Tarif kostenlos', affiliate:'https://finom.co/?ref=firmendo', review:'/finom-geschaeftskonto/', top:true },
-      { name:'Kontist', tag:'Speziell für Selbstständige', pros:['Steuervorauszahlungen automatisch berechnet','IBAN sofort – Konto in 8 Minuten','Visa Business Debitkarte inklusive'], price:'Kostenlos im Free-Tarif', affiliate:'https://kontist.com/?ref=firmendo', review:'/kontist-geschaeftskonto/', top:false }
-    ],
-    buchhaltung: [
-      { name:'Finom', tag:'Konto & Buchhaltung in einer App', pros:['DATEV & Lexoffice-Integration','Rechnungsstellung inklusive','Sofort-IBAN in wenigen Minuten'], price:'Solo-Tarif kostenlos', affiliate:'https://finom.co/?ref=firmendo', review:'/finom-geschaeftskonto/', top:true },
-      { name:'Kontist', tag:'Automatische Steuerberechnung', pros:['DATEV & Lexoffice inklusive','Steuervorauszahlungen automatisch','Visa Business Debitkarte'], price:'Kostenlos im Free-Tarif', affiliate:'https://kontist.com/?ref=firmendo', review:'/kontist-geschaeftskonto/', top:false }
-    ],
-    komplett: [
-      { name:'Finom', tag:'Konto & Buchhaltung in einer App', pros:['Rechnungsstellung inklusive','DATEV & Lexoffice-Integration','Sofort-IBAN in wenigen Minuten'], price:'Solo-Tarif kostenlos', affiliate:'https://finom.co/?ref=firmendo', review:'/finom-geschaeftskonto/', top:true },
-      { name:'Holvi', tag:'All-in-One für Selbstständige', pros:['Buchhaltung & Belege integriert','Rechnungsstellung aus dem Konto','Mehrere Währungen möglich'], price:'Kostenlos im Flex-Tarif', affiliate:'https://holvi.com/?ref=firmendo', review:'/holvi-geschaeftskonto/', top:false }
-    ],
-    cashback: [
-      { name:'Finom', tag:'1 % Cashback auf Kartenzahlungen', pros:['1 % Cashback ab Basic-Tarif','Visa Business Karte inklusive','Sofort-IBAN in wenigen Minuten'], price:'Solo kostenlos · Basic ab 10,99 €/Monat', affiliate:'https://finom.co/?ref=firmendo', review:'/finom-geschaeftskonto/', top:true },
-      { name:'Kontist', tag:'Visa Business Debitkarte', pros:['Visa Business Debitkarte','Steuerberechnung automatisch','IBAN sofort verfügbar'], price:'Kostenlos im Free-Tarif', affiliate:'https://kontist.com/?ref=firmendo', review:'/kontist-geschaeftskonto/', top:false }
-    ]
-  },
-  gruender: {
-    kostenlos: [
-      { name:'FYRST', tag:'Deutsche Bank Tochter – 1. Jahr gratis', pros:['1. Jahr komplett kostenlos','Deutsches IBAN & Bankgarantie','DATEV-Schnittstelle inklusive'], price:'Gratis im 1. Jahr', affiliate:'https://www.fyrst.de/?ref=firmendo', review:'/fyrst-geschaeftskonto/', top:true },
-      { name:'Finom', tag:'Sofort startklar für Gründer', pros:['Solo-Tarif dauerhaft kostenlos','Sofort-IBAN in wenigen Minuten','Rechnungsstellung inklusive'], price:'Solo-Tarif kostenlos', affiliate:'https://finom.co/?ref=firmendo', review:'/finom-geschaeftskonto/', top:false }
-    ],
-    buchhaltung: [
-      { name:'FYRST', tag:'DATEV & Buchhaltungs-Integration', pros:['DATEV-Schnittstelle inklusive','Deutsche-Bank-Infrastruktur','Online + Filiale kombinierbar'], price:'Gratis im 1. Jahr', affiliate:'https://www.fyrst.de/?ref=firmendo', review:'/fyrst-geschaeftskonto/', top:true },
-      { name:'Finom', tag:'Buchhaltung in einer App', pros:['DATEV & Lexoffice-Integration','Rechnungsstellung inklusive','Belege erfassen & kategorisieren'], price:'Solo-Tarif kostenlos', affiliate:'https://finom.co/?ref=firmendo', review:'/finom-geschaeftskonto/', top:false }
-    ],
-    komplett: [
-      { name:'Finom', tag:'All-in-One für Startups & Gründer', pros:['Rechnungsstellung inklusive','Buchhaltung & Belege in einer App','Sofort-IBAN in wenigen Minuten'], price:'Solo-Tarif kostenlos', affiliate:'https://finom.co/?ref=firmendo', review:'/finom-geschaeftskonto/', top:true },
-      { name:'FYRST', tag:'Deutsch, sicher und vollständig', pros:['1. Jahr kostenlos','DATEV inklusive','Online + Filiale kombinierbar'], price:'Gratis im 1. Jahr', affiliate:'https://www.fyrst.de/?ref=firmendo', review:'/fyrst-geschaeftskonto/', top:false }
-    ],
-    cashback: [
-      { name:'Vivid Business', tag:'Cashback & moderne Features', pros:['Cashback auf Kartenzahlungen','Unterkonten für Budgets','Virtuelle Karten verfügbar'], price:'Start-Tarif kostenlos', affiliate:'https://vivid.money/business?ref=firmendo', review:'/vivid-business/', top:true },
-      { name:'Finom', tag:'1 % Cashback ab Basic', pros:['1 % Cashback auf Kartenzahlungen','Visa Business Karte','Sofort-IBAN in wenigen Minuten'], price:'Solo kostenlos · Basic ab 10,99 €/Monat', affiliate:'https://finom.co/?ref=firmendo', review:'/finom-geschaeftskonto/', top:false }
-    ]
-  },
-  gmbh: {
-    kostenlos: [
-      { name:'FYRST', tag:'Deutsche Bank Tochter für GmbH & UG', pros:['Stammkapital-Einzahlung möglich','Deutsche-Bank-Infrastruktur','DATEV-Schnittstelle inklusive'], price:'Ab 6 €/Monat für juristische Personen', affiliate:'https://www.fyrst.de/?ref=firmendo', review:'/fyrst-geschaeftskonto/', top:true },
-      { name:'Finom', tag:'Für GmbH, UG & Startups', pros:['2 Nutzer im Basic-Tarif','1 % Cashback auf Kartenzahlungen','Sofort-IBAN in wenigen Minuten'], price:'Basic ab 10,99 €/Monat (zzgl. MwSt.)', affiliate:'https://finom.co/?ref=firmendo', review:'/finom-geschaeftskonto/', top:false }
-    ],
-    buchhaltung: [
-      { name:'Qonto', tag:'DATEV-Integration für GmbH & UG', pros:['DATEV ab höheren Tarifen','Für alle deutschen Rechtsformen','Echtzeit-Benachrichtigungen'], price:'Ab 9 €/Monat (zzgl. MwSt.)', affiliate:'https://qonto.com/?ref=firmendo', review:'/qonto-geschaeftskonto/', top:true },
-      { name:'FYRST', tag:'DATEV & Filiale kombinierbar', pros:['DATEV-Schnittstelle inklusive','Stammkapital-Einzahlung möglich','Online + Filiale kombinierbar'], price:'Ab 6 €/Monat', affiliate:'https://www.fyrst.de/?ref=firmendo', review:'/fyrst-geschaeftskonto/', top:false }
-    ],
-    komplett: [
-      { name:'Qonto', tag:'Ideal für GmbH & UG', pros:['Stammkapital-Einzahlung möglich','Echtzeit-Benachrichtigungen','DATEV ab höheren Tarifen'], price:'Ab 9 €/Monat (zzgl. MwSt.)', affiliate:'https://qonto.com/?ref=firmendo', review:'/qonto-geschaeftskonto/', top:true },
-      { name:'Finom', tag:'All-in-One für GmbH', pros:['Buchhaltung & Belege integriert','2 Nutzer im Basic-Tarif','Visa Business Karte inklusive'], price:'Basic ab 10,99 €/Monat (zzgl. MwSt.)', affiliate:'https://finom.co/?ref=firmendo', review:'/finom-geschaeftskonto/', top:false }
-    ],
-    cashback: [
-      { name:'Finom', tag:'1 % Cashback für GmbH & UG', pros:['1 % Cashback auf Kartenzahlungen','2 Nutzer im Basic-Tarif inklusive','Visa Business Karte inklusive'], price:'Basic ab 10,99 €/Monat (zzgl. MwSt.)', affiliate:'https://finom.co/?ref=firmendo', review:'/finom-geschaeftskonto/', top:true },
-      { name:'Qonto', tag:'Vollständig für GmbH', pros:['Stammkapital-Einzahlung möglich','DATEV-fähig','Strukturierte Kontoführung'], price:'Ab 9 €/Monat (zzgl. MwSt.)', affiliate:'https://qonto.com/?ref=firmendo', review:'/qonto-geschaeftskonto/', top:false }
-    ]
-  },
-  teams: {
-    kostenlos: [
-      { name:'Vivid Business', tag:'Flexibel für Budgets und Teams', pros:['Start-Tarif dauerhaft kostenlos','Unterkonten für Teambudgets','Virtuelle Karten verfügbar'], price:'Start-Tarif kostenlos', affiliate:'https://vivid.money/business?ref=firmendo', review:'/vivid-business/', top:true },
-      { name:'Finom', tag:'2 Nutzer im Basic-Tarif', pros:['2 Nutzer im Basic-Tarif inklusive','1 % Cashback auf Kartenzahlungen','Echtzeit-Benachrichtigungen'], price:'Basic ab 10,99 €/Monat (zzgl. MwSt.)', affiliate:'https://finom.co/?ref=firmendo', review:'/finom-geschaeftskonto/', top:false }
-    ],
-    buchhaltung: [
-      { name:'Qonto', tag:'DATEV & Teamzugänge', pros:['DATEV inklusive ab Smart-Tarif','Admin- und Teamzugänge','1 Unterkonto inklusive'], price:'Smart ab 19 €/Monat (zzgl. MwSt.)', affiliate:'https://qonto.com/?ref=firmendo', review:'/qonto-geschaeftskonto/', top:true },
-      { name:'Finom', tag:'Buchhaltung für kleine Teams', pros:['DATEV & Lexoffice-Integration','Buchhaltung & Belege inklusive','2 Nutzer im Basic-Tarif'], price:'Basic ab 10,99 €/Monat (zzgl. MwSt.)', affiliate:'https://finom.co/?ref=firmendo', review:'/finom-geschaeftskonto/', top:false }
-    ],
-    komplett: [
-      { name:'Qonto', tag:'Stark für strukturierte Teams', pros:['Ausgabenrichtlinien & Budgets','Admin- und Teamzugänge','DATEV inklusive ab Smart'], price:'Smart ab 19 €/Monat (zzgl. MwSt.)', affiliate:'https://qonto.com/?ref=firmendo', review:'/qonto-geschaeftskonto/', top:true },
-      { name:'Vivid Business', tag:'Unterkonten & virtuelle Karten', pros:['Unterkonten für Teambudgets','Virtuelle Karten verfügbar','Start-Tarif kostenlos'], price:'Start-Tarif kostenlos', affiliate:'https://vivid.money/business?ref=firmendo', review:'/vivid-business/', top:false }
-    ],
-    cashback: [
-      { name:'Finom', tag:'Cashback für Teams', pros:['1 % Cashback auf Kartenzahlungen','Mehrere Nutzer inklusive','Echtzeit-Benachrichtigungen'], price:'Basic ab 10,99 €/Monat (zzgl. MwSt.)', affiliate:'https://finom.co/?ref=firmendo', review:'/finom-geschaeftskonto/', top:true },
-      { name:'Vivid Business', tag:'Cashback & Unterkonten', pros:['Cashback ab Prime-Tarif','Unterkonten für Budgets','Virtuelle Karten verfügbar'], price:'Start-Tarif kostenlos', affiliate:'https://vivid.money/business?ref=firmendo', review:'/vivid-business/', top:false }
-    ]
+  var fQ1 = null;
+  var fQ2 = null;
+  var fQ1FromHero = false;
+  var fLogos = {
+    'Depot Vergleich': '../images/mini-logos/trade-republic.svg',
+    'Online Broker Vergleich': '../images/mini-logos/scalable-capital.png',
+    'ETF Sparplan Vergleich': '../images/mini-logos/scalable-capital.png',
+    'Junior Depot': '../images/mini-logos/consorsbank.png',
+    'Trade Republic': '../images/mini-logos/trade-republic.svg',
+    'Scalable Capital': '../images/mini-logos/scalable-capital.png',
+    'comdirect Depot': '../images/mini-logos/comdirect.png',
+    'Consorsbank Depot': '../images/mini-logos/consorsbank.png'
+  };
+  var fQ1Labels = {
+    depot: 'Depot Vergleich',
+    broker: 'Online Broker',
+    etf: 'ETF Sparplan',
+    junior: 'Junior Depot'
+  };
+  var fDB = {
+    depot: {
+      kosten: [
+        { name:'Depot Vergleich', tag:'Kosten, Orderpreise und Depotmodelle vergleichen', pros:['Depotgebühren und Orderkosten einordnen','Neobroker und Direktbanken gegenüberstellen','Passende Anbieter-Reviews direkt erreichen'], price:'Startseite für den Depotvergleich', primary:'/depot-vergleich/', secondary:'/trade-republic/', top:true },
+        { name:'Trade Republic', tag:'Neobroker als Kosten- und App-Anker', pros:['App-Fokus und einfache Orderwege','ETF-Sparpläne prüfen','Gut für kostenbewusste Anleger einzuordnen'], price:'Detailtest mit aktuellen Konditionen prüfen', primary:'/trade-republic/', secondary:'/online-broker-vergleich/', top:false }
+      ],
+      auswahl: [
+        { name:'comdirect Depot', tag:'Direktbank-Depot mit breiterem Bankumfeld', pros:['Depot, Bankfunktionen und Service zusammen betrachten','ETF-Sparpläne und Handelsplätze prüfen','Für klassische Direktbank-Nutzung relevant'], price:'Review und Konditionen prüfen', primary:'/comdirect-depot/', secondary:'/depot-vergleich/', top:true },
+        { name:'Consorsbank Depot', tag:'Direktbank-Depot für aktive und langfristige Anleger', pros:['Sparpläne, Handelsangebot und Service einordnen','Geeignet als Direktbank-Vergleichsanker','Stärken und Schwächen transparent prüfen'], price:'Review und Konditionen prüfen', primary:'/consorsbank-depot/', secondary:'/depot-vergleich/', top:false }
+      ],
+      sparplan: [
+        { name:'ETF Sparplan Vergleich', tag:'ETF-Sparpläne im Depotvergleich priorisieren', pros:['Ausführungskosten und ETF-Auswahl prüfen','Sparraten und Flexibilität vergleichen','Für langfristigen Vermögensaufbau gedacht'], price:'P0-Vergleich öffnen', primary:'/etf-sparplan-vergleich/', secondary:'/etf-sparplan/', top:true },
+        { name:'Scalable Capital', tag:'Broker mit starkem ETF-Sparplan-Fokus', pros:['ETF-Angebot und App einordnen','Kostenmodell vergleichen','Als Review mit Broker-Vergleich verknüpft'], price:'Detailtest mit aktuellen Konditionen prüfen', primary:'/scalable-capital/', secondary:'/online-broker-vergleich/', top:false }
+      ],
+      service: [
+        { name:'comdirect Depot', tag:'Direktbank-Depot mit Service- und Bankanbindung', pros:['Klassische Depotnutzung prüfen','Bankumfeld und Service berücksichtigen','Für langfristige Depotnutzung einordnen'], price:'Review und Konditionen prüfen', primary:'/comdirect-depot/', secondary:'/depot-vergleich/', top:true },
+        { name:'Consorsbank Depot', tag:'Direktbank-Alternative mit breitem Depotfokus', pros:['Depotfunktionen und Sparpläne prüfen','Serviceaspekte einordnen','Als Vergleichsanker für Direktbanken geeignet'], price:'Review und Konditionen prüfen', primary:'/consorsbank-depot/', secondary:'/depot-vergleich/', top:false }
+      ]
+    },
+    broker: {
+      kosten: [
+        { name:'Trade Republic', tag:'Neobroker für kostenbewusste Anleger', pros:['App-Fokus und einfache Bedienung','Orderkosten und Sparplanangebot prüfen','Guter Einstieg in Neobroker-Vergleiche'], price:'Detailtest mit aktuellen Konditionen prüfen', primary:'/trade-republic/', secondary:'/online-broker-vergleich/', top:true },
+        { name:'Scalable Capital', tag:'Broker-Plattform mit Tarifmodell', pros:['Kostenmodell und Funktionen vergleichen','ETF-Sparpläne und Handelsangebot einordnen','Alternative zum reinen App-Broker prüfen'], price:'Detailtest mit aktuellen Konditionen prüfen', primary:'/scalable-capital/', secondary:'/online-broker-vergleich/', top:false }
+      ],
+      auswahl: [
+        { name:'Online Broker Vergleich', tag:'Broker nach Handelsverhalten auswählen', pros:['Handelsplätze, App und Webplattform vergleichen','Neobroker und Direktbanken einordnen','Top Reviews miteinander verknüpfen'], price:'P0-Vergleich öffnen', primary:'/online-broker-vergleich/', secondary:'/depot-vergleich/', top:true },
+        { name:'Scalable Capital', tag:'Broker und Anlageplattform im Detail', pros:['Wertpapierauswahl prüfen','Sparplanangebot einordnen','Plattform und App vergleichen'], price:'Detailtest mit aktuellen Konditionen prüfen', primary:'/scalable-capital/', secondary:'/trade-republic/', top:false }
+      ],
+      sparplan: [
+        { name:'ETF Sparplan Vergleich', tag:'Broker mit ETF-Sparplan-Fokus finden', pros:['Sparplan-Kosten und ETF-Auswahl prüfen','Ausführung und Flexibilität vergleichen','Für regelmäßiges Investieren relevant'], price:'P0-Vergleich öffnen', primary:'/etf-sparplan-vergleich/', secondary:'/online-broker-vergleich/', top:true },
+        { name:'Trade Republic', tag:'Neobroker mit Sparplan-Fokus prüfen', pros:['ETF-Sparpläne im Review einordnen','App und Orderprozess vergleichen','Kosten transparent prüfen'], price:'Detailtest mit aktuellen Konditionen prüfen', primary:'/trade-republic/', secondary:'/scalable-capital/', top:false }
+      ],
+      service: [
+        { name:'Online Broker Vergleich', tag:'Broker nicht nur nach Preis auswählen', pros:['Service, Sicherheit und Plattform berücksichtigen','Direktbanken und Neobroker trennen','Passenden Nutzungstyp finden'], price:'P0-Vergleich öffnen', primary:'/online-broker-vergleich/', secondary:'/depot-vergleich/', top:true },
+        { name:'comdirect Depot', tag:'Direktbank-Depot als Service-Alternative', pros:['Bankumfeld und Service einordnen','Depot und Sparpläne prüfen','Alternative zu reinen App-Brokern'], price:'Review und Konditionen prüfen', primary:'/comdirect-depot/', secondary:'/consorsbank-depot/', top:false }
+      ]
+    },
+    etf: {
+      kosten: [
+        { name:'ETF Sparplan Vergleich', tag:'Sparplan-Kosten und ETF-Auswahl priorisieren', pros:['Ausführungskosten vergleichen','Mindestsparrate und Flexibilität prüfen','ETF-Auswahl nach Anbieter einordnen'], price:'P0-Vergleich öffnen', primary:'/etf-sparplan-vergleich/', secondary:'/etf-sparplan/', top:true },
+        { name:'Scalable Capital', tag:'ETF-orientierter Broker-Review', pros:['ETF-Sparpläne und Kostenmodell prüfen','App und Plattform einordnen','Als Anbieter-Test verknüpft'], price:'Detailtest mit aktuellen Konditionen prüfen', primary:'/scalable-capital/', secondary:'/trade-republic/', top:false }
+      ],
+      auswahl: [
+        { name:'ETF Sparplan Vergleich', tag:'ETF-Angebot nach Breite und Flexibilität vergleichen', pros:['ETF-Auswahl und Sparplanfähigkeit prüfen','Ausführungstage und Raten vergleichen','Direktbanken und Broker einordnen'], price:'P0-Vergleich öffnen', primary:'/etf-sparplan-vergleich/', secondary:'/etf/', top:true },
+        { name:'comdirect Depot', tag:'Direktbank-Depot mit ETF-Sparplänen prüfen', pros:['ETF-Angebot im Bankdepot betrachten','Service und Depotumfeld berücksichtigen','Für langfristige Anleger einordnen'], price:'Review und Konditionen prüfen', primary:'/comdirect-depot/', secondary:'/consorsbank-depot/', top:false }
+      ],
+      sparplan: [
+        { name:'ETF Sparplan Vergleich', tag:'Direkter Einstieg für regelmäßiges Investieren', pros:['Kosten, ETF-Auswahl und Sparrate vergleichen','Für langfristige Strategien gedacht','Mit Wissensartikeln verknüpft'], price:'P0-Vergleich öffnen', primary:'/etf-sparplan-vergleich/', secondary:'/etf-sparplan/', top:true },
+        { name:'Trade Republic', tag:'Neobroker mit ETF-Sparplan-Fokus', pros:['App-Fokus prüfen','Sparplanangebot einordnen','Kosten transparent vergleichen'], price:'Detailtest mit aktuellen Konditionen prüfen', primary:'/trade-republic/', secondary:'/scalable-capital/', top:false }
+      ],
+      service: [
+        { name:'comdirect Depot', tag:'ETF-Sparpläne im Direktbank-Umfeld', pros:['Service und Bankfunktionen berücksichtigen','ETF-Sparpläne prüfen','Langfristige Depotnutzung einordnen'], price:'Review und Konditionen prüfen', primary:'/comdirect-depot/', secondary:'/etf-sparplan-vergleich/', top:true },
+        { name:'Consorsbank Depot', tag:'Direktbank-Alternative für ETF-Sparpläne', pros:['Sparpläne und Service vergleichen','Depotfunktionen einordnen','Für klassische Anleger relevant'], price:'Review und Konditionen prüfen', primary:'/consorsbank-depot/', secondary:'/etf-sparplan-vergleich/', top:false }
+      ]
+    },
+    junior: {
+      kosten: [
+        { name:'Junior Depot', tag:'Depot für Kinder nach Kosten und Praxis vergleichen', pros:['Depotgebühren und Sparplankosten prüfen','Eröffnung und Elternrolle verständlich machen','Langfristige ETF-Nutzung einordnen'], price:'P0-Vergleich öffnen', primary:'/junior-depot/', secondary:'/comdirect-junior-depot/', top:true },
+        { name:'Consorsbank Depot', tag:'Direktbank-Anker für Junior-Depot-Recherche', pros:['Junior-Depot-Eignung später vertiefen','Sparplanangebot und Service prüfen','Mit Kinderdepot-Hub verknüpfen'], price:'Review und Konditionen prüfen', primary:'/consorsbank-depot/', secondary:'/junior-depot/', top:false }
+      ],
+      auswahl: [
+        { name:'Junior Depot', tag:'Anbieter und Eröffnungsprozess vergleichen', pros:['Depot für Minderjährige einordnen','ETF-Sparpläne berücksichtigen','Direktbank-Angebote strukturiert prüfen'], price:'P0-Vergleich öffnen', primary:'/junior-depot/', secondary:'/kinderdepot/', top:true },
+        { name:'comdirect Depot', tag:'Direktbank-Umfeld für Familien prüfen', pros:['Depotumfeld und Sparpläne betrachten','Service und Verwaltung einordnen','Als P0-Review-Anker verknüpft'], price:'Review und Konditionen prüfen', primary:'/comdirect-depot/', secondary:'/junior-depot/', top:false }
+      ],
+      sparplan: [
+        { name:'Junior Depot', tag:'ETF-Sparpläne für Kinder einordnen', pros:['Langfristige Sparpläne erklären','Kosten und Flexibilität prüfen','Eröffnung und gesetzliche Vertreter berücksichtigen'], price:'P0-Vergleich öffnen', primary:'/junior-depot/', secondary:'/etf-sparplan-vergleich/', top:true },
+        { name:'ETF Sparplan Vergleich', tag:'ETF-Sparplan-Grundlage für Junior Depots', pros:['ETF-Auswahl und Kosten vergleichen','Regelmäßige Anlage verstehen','Wissensartikel ergänzen'], price:'P0-Vergleich öffnen', primary:'/etf-sparplan-vergleich/', secondary:'/etf-sparplan/', top:false }
+      ],
+      service: [
+        { name:'Junior Depot', tag:'Eröffnung, Verwaltung und langfristige Nutzung prüfen', pros:['Rollen der Eltern verstehen','Direktbank-Service einordnen','Depot langfristig verwalten'], price:'P0-Vergleich öffnen', primary:'/junior-depot/', secondary:'/comdirect-depot/', top:true },
+        { name:'Consorsbank Depot', tag:'Direktbank-Review als Service-Anker', pros:['Service und Depotfunktionen prüfen','Sparplanangebot einordnen','Als Junior-Depot-Kontext nutzen'], price:'Review und Konditionen prüfen', primary:'/consorsbank-depot/', secondary:'/junior-depot/', top:false }
+      ]
+    }
+  };
+
+  function fSelectQ1(val, btn) {
+    fQ1 = val;
+    document.querySelectorAll('#fstep1 .finder-opt').forEach(function(b) { b.classList.remove('selected'); });
+    if (btn) btn.classList.add('selected');
+    var next = document.getElementById('fbtn1');
+    if (next) next.disabled = false;
+    var result = document.getElementById('fresult');
+    if (result) result.hidden = true;
   }
-};
 
-function fSelectQ1(val, btn) {
-  fQ1 = val;
-  document.querySelectorAll('#fstep1 .finder-opt').forEach(function(b) { b.classList.remove('selected'); });
-  if (btn) btn.classList.add('selected');
-  document.getElementById('fbtn1').disabled = false;
-  document.getElementById('fresult').hidden = true;
-};
-function fUpdateQ1Summary() {
-  var prefillNote = document.getElementById('finder-prefill-note');
-  if (!prefillNote || !fQ1) return;
+  function fUpdateQ1Summary() {
+    var prefillNote = document.getElementById('finder-prefill-note');
+    if (!prefillNote || !fQ1) return;
 
-  var source = prefillNote.querySelector('[data-finder-prefill-source]');
-  var label = prefillNote.querySelector('[data-finder-prefill-label]');
-  if (source) source.textContent = fQ1FromHero ? 'Aus der Auswahl oben übernommen' : 'Ausgewählt in Schritt 1';
-  if (label) label.textContent = fQ1Labels[fQ1] || 'Ihre Auswahl';
-  prefillNote.hidden = false;
-}
-function fSelectQ2(val, btn) {
-  fQ2 = val;
-  document.querySelectorAll('#fstep2 .finder-opt').forEach(function(b) { b.classList.remove('selected'); });
-  if (btn) btn.classList.add('selected');
-  document.getElementById('fbtn2').disabled = false;
-  document.getElementById('fresult').hidden = true;
-};
-function fGoStep2() {
-  document.getElementById('fstep1').hidden = true;
-  var s2 = document.getElementById('fstep2');
-  s2.hidden = false;
-  document.getElementById('fresult').hidden = true;
-  fUpdateQ1Summary();
-  document.getElementById('fdot1').className = 'finder-step-dot done';
-  document.getElementById('fline1').className = 'finder-step-line done';
-  document.getElementById('fdot2').className = 'finder-step-dot active';
-  document.getElementById('fline2').className = 'finder-step-line';
-  document.getElementById('fdot3').className = 'finder-step-dot pending';
-};
-function fGoStep1() {
-  document.getElementById('fstep2').hidden = true;
-  document.getElementById('fstep1').hidden = false;
-  document.getElementById('fresult').hidden = true;
-  var prefillNote = document.getElementById('finder-prefill-note');
-  if (prefillNote) prefillNote.hidden = true;
-  document.getElementById('fdot1').className = 'finder-step-dot active';
-  document.getElementById('fline1').className = 'finder-step-line';
-  document.getElementById('fdot2').className = 'finder-step-dot pending';
-  document.getElementById('fline2').className = 'finder-step-line';
-  document.getElementById('fdot3').className = 'finder-step-dot pending';
-};
-function fShowResult() {
-  if (!fQ1 || !fQ2) return;
-  var recs = fDB[fQ1][fQ2];
-  document.getElementById('fstep2').hidden = true;
-  document.getElementById('fdot2').className = 'finder-step-dot done';
-  document.getElementById('fline2').className = 'finder-step-line done';
-  document.getElementById('fdot3').className = 'finder-step-dot done';
-  var html = '<div class="finder-result-grid">';
-  recs.forEach(function(r) {
-    var logoSrc = fLogos[r.name] || '';
-    var logoHtml = logoSrc
-      ? '<img src="' + logoSrc + '" class="finder-result-logo" alt="' + r.name + '">'
-      : '<div class="finder-result-logo finder-result-logo-fallback">' + r.name.charAt(0) + '</div>';
-    html += '<div class="finder-result-card' + (r.top ? ' is-top' : '') + '">';
-    html += '<span class="finder-result-badge ' + (r.top ? 'top' : 'alt') + '">' + (r.top ? 'Top-Empfehlung' : 'Alternative') + '</span>';
-    html += '<div class="finder-result-header">' + logoHtml + '<div><div class="finder-result-name">' + r.name + '</div><div class="finder-result-tag">' + r.tag + '</div></div></div>';
-    html += '<ul class="finder-result-pros">' + r.pros.map(function(p) { return '<li>' + p + '</li>'; }).join('') + '</ul>';
-    html += '<div class="finder-result-price">Preis: <strong>' + r.price + '</strong></div>';
-    html += '<div class="finder-result-trust"><span>Redaktionell geprüft</span><span>Stand: Mai 2026</span><span>Kriterienbasiert</span></div>';
-    html += '<div class="finder-result-links">';
-    html += '<a href="' + r.affiliate + '" class="finder-link-primary" target="_blank" rel="noopener">Jetzt testen →</a>';
-    html += '<a href="' + r.review + '" class="finder-link-secondary">Detailtest lesen</a>';
-    html += '</div></div>';
-  });
-  html += '</div><button class="finder-restart" data-finder-action="restart">← Neu starten</button>';
-  var rv = document.getElementById('fresult');
-  rv.innerHTML = html;
-  rv.hidden = false;
-};
-function fRestart() {
-  fQ1 = null; fQ2 = null;
-  fQ1FromHero = false;
-  document.getElementById('fresult').hidden = true;
-  document.getElementById('fstep1').hidden = false;
-  document.getElementById('fstep2').hidden = true;
-  var prefillNote = document.getElementById('finder-prefill-note');
-  if (prefillNote) prefillNote.hidden = true;
-  document.querySelectorAll('.finder-opt').forEach(function(b) { b.classList.remove('selected'); });
-  document.getElementById('fbtn1').disabled = true;
-  document.getElementById('fbtn2').disabled = true;
-  document.getElementById('fdot1').className = 'finder-step-dot active';
-  document.getElementById('fdot2').className = 'finder-step-dot pending';
-  document.getElementById('fdot3').className = 'finder-step-dot pending';
-  document.getElementById('fline1').className = 'finder-step-line';
-  document.getElementById('fline2').className = 'finder-step-line';
-};
+    var source = prefillNote.querySelector('[data-finder-prefill-source]');
+    var label = prefillNote.querySelector('[data-finder-prefill-label]');
+    if (source) source.textContent = fQ1FromHero ? 'Aus der Auswahl oben übernommen' : 'Ausgewählt in Schritt 1';
+    if (label) label.textContent = fQ1Labels[fQ1] || 'Ihre Auswahl';
+    prefillNote.hidden = false;
+  }
 
-function initFinderControls() {
-  const finder = document.querySelector('.section-finder');
-  if (!finder) return;
+  function fSelectQ2(val, btn) {
+    fQ2 = val;
+    document.querySelectorAll('#fstep2 .finder-opt').forEach(function(b) { b.classList.remove('selected'); });
+    if (btn) btn.classList.add('selected');
+    var next = document.getElementById('fbtn2');
+    if (next) next.disabled = false;
+    var result = document.getElementById('fresult');
+    if (result) result.hidden = true;
+  }
 
-  finder.addEventListener('click', function(event) {
-    const q1Button = event.target.closest('[data-finder-q1]');
-    if (q1Button) {
-      fQ1FromHero = false;
-      fSelectQ1(q1Button.dataset.finderQ1, q1Button);
-      var prefillNote = document.getElementById('finder-prefill-note');
-      if (prefillNote) prefillNote.hidden = true;
-      return;
-    }
+  function fGoStep2() {
+    document.getElementById('fstep1').hidden = true;
+    var s2 = document.getElementById('fstep2');
+    s2.hidden = false;
+    document.getElementById('fresult').hidden = true;
+    fUpdateQ1Summary();
+    document.getElementById('fdot1').className = 'finder-step-dot done';
+    document.getElementById('fline1').className = 'finder-step-line done';
+    document.getElementById('fdot2').className = 'finder-step-dot active';
+    document.getElementById('fline2').className = 'finder-step-line';
+    document.getElementById('fdot3').className = 'finder-step-dot pending';
+  }
 
-    const q2Button = event.target.closest('[data-finder-q2]');
-    if (q2Button) {
-      fSelectQ2(q2Button.dataset.finderQ2, q2Button);
-      return;
-    }
+  function fGoStep1() {
+    document.getElementById('fstep2').hidden = true;
+    document.getElementById('fstep1').hidden = false;
+    document.getElementById('fresult').hidden = true;
+    var prefillNote = document.getElementById('finder-prefill-note');
+    if (prefillNote) prefillNote.hidden = true;
+    document.getElementById('fdot1').className = 'finder-step-dot active';
+    document.getElementById('fline1').className = 'finder-step-line';
+    document.getElementById('fdot2').className = 'finder-step-dot pending';
+    document.getElementById('fline2').className = 'finder-step-line';
+    document.getElementById('fdot3').className = 'finder-step-dot pending';
+  }
 
-    const actionButton = event.target.closest('[data-finder-action]');
-    if (!actionButton) return;
-
-    if (actionButton.dataset.finderAction === 'next') fGoStep2();
-    if (actionButton.dataset.finderAction === 'back') fGoStep1();
-    if (actionButton.dataset.finderAction === 'result') fShowResult();
-    if (actionButton.dataset.finderAction === 'restart') fRestart();
-  });
-
-  document.addEventListener('aktiendepot24:heroFinderSelected', function(event) {
-    const q1 = event.detail && event.detail.q1;
-    if (!q1) return;
-
-    const q1Button = finder.querySelector('[data-finder-q1="' + q1 + '"]');
-    if (!q1Button) return;
-
-    fSelectQ1(q1, q1Button);
-    fQ1FromHero = true;
-    fQ2 = null;
-    finder.querySelectorAll('#fstep2 .finder-opt').forEach(function(btn) {
-      btn.classList.remove('selected');
+  function fShowResult() {
+    if (!fQ1 || !fQ2 || !fDB[fQ1] || !fDB[fQ1][fQ2]) return;
+    var recs = fDB[fQ1][fQ2];
+    document.getElementById('fstep2').hidden = true;
+    document.getElementById('fdot2').className = 'finder-step-dot done';
+    document.getElementById('fline2').className = 'finder-step-line done';
+    document.getElementById('fdot3').className = 'finder-step-dot done';
+    var html = '<div class="finder-result-grid">';
+    recs.forEach(function(r) {
+      var logoSrc = fLogos[r.name] || '';
+      var logoHtml = logoSrc
+        ? '<img src="' + logoSrc + '" class="finder-result-logo" alt="' + r.name + '">'
+        : '<div class="finder-result-logo finder-result-logo-fallback">' + r.name.charAt(0) + '</div>';
+      html += '<div class="finder-result-card' + (r.top ? ' is-top' : '') + '">';
+      html += '<span class="finder-result-badge ' + (r.top ? 'top' : 'alt') + '">' + (r.top ? 'Passender Einstieg' : 'Alternative') + '</span>';
+      html += '<div class="finder-result-header">' + logoHtml + '<div><div class="finder-result-name">' + r.name + '</div><div class="finder-result-tag">' + r.tag + '</div></div></div>';
+      html += '<ul class="finder-result-pros">' + r.pros.map(function(p) { return '<li>' + p + '</li>'; }).join('') + '</ul>';
+      html += '<div class="finder-result-price">Hinweis: <strong>' + r.price + '</strong></div>';
+      html += '<div class="finder-result-trust"><span>Redaktionell geprüft</span><span>Stand: Juni 2026</span><span>Keine Anlageberatung</span></div>';
+      html += '<div class="finder-result-links">';
+      html += '<a href="' + r.primary + '" class="finder-link-primary">Seite öffnen →</a>';
+      html += '<a href="' + r.secondary + '" class="finder-link-secondary">Alternative ansehen</a>';
+      html += '</div></div>';
     });
+    html += '</div><button class="finder-restart" data-finder-action="restart">← Neu starten</button>';
+    var rv = document.getElementById('fresult');
+    rv.innerHTML = html;
+    rv.hidden = false;
+  }
+
+  function fRestart() {
+    fQ1 = null;
+    fQ2 = null;
+    fQ1FromHero = false;
+    document.getElementById('fresult').hidden = true;
+    document.getElementById('fstep1').hidden = false;
+    document.getElementById('fstep2').hidden = true;
+    var prefillNote = document.getElementById('finder-prefill-note');
+    if (prefillNote) prefillNote.hidden = true;
+    document.querySelectorAll('.finder-opt').forEach(function(b) { b.classList.remove('selected'); });
+    document.getElementById('fbtn1').disabled = true;
     document.getElementById('fbtn2').disabled = true;
-    fGoStep2();
-  });
+    document.getElementById('fdot1').className = 'finder-step-dot active';
+    document.getElementById('fdot2').className = 'finder-step-dot pending';
+    document.getElementById('fdot3').className = 'finder-step-dot pending';
+    document.getElementById('fline1').className = 'finder-step-line';
+    document.getElementById('fline2').className = 'finder-step-line';
+  }
 
-  document.addEventListener('click', function(event) {
-    const scrollLink = event.target.closest('[data-scroll-to-finder]');
-    if (!scrollLink) return;
-    event.preventDefault();
-    scrollBusinesskontoFinderIntoView();
-  });
-}
+  function initFinderControls() {
+    var finder = document.querySelector('.section-finder');
+    if (!finder) return;
 
-initFinderControls();
+    finder.addEventListener('click', function(event) {
+      var q1Button = event.target.closest('[data-finder-q1]');
+      if (q1Button) {
+        fQ1FromHero = false;
+        fSelectQ1(q1Button.dataset.finderQ1, q1Button);
+        var prefillNote = document.getElementById('finder-prefill-note');
+        if (prefillNote) prefillNote.hidden = true;
+        return;
+      }
+
+      var q2Button = event.target.closest('[data-finder-q2]');
+      if (q2Button) {
+        fSelectQ2(q2Button.dataset.finderQ2, q2Button);
+        return;
+      }
+
+      var actionButton = event.target.closest('[data-finder-action]');
+      if (!actionButton) return;
+
+      if (actionButton.dataset.finderAction === 'next') fGoStep2();
+      if (actionButton.dataset.finderAction === 'back') fGoStep1();
+      if (actionButton.dataset.finderAction === 'result') fShowResult();
+      if (actionButton.dataset.finderAction === 'restart') fRestart();
+    });
+
+    document.addEventListener('aktiendepot24:heroFinderSelected', function(event) {
+      var q1 = event.detail && event.detail.q1;
+      if (!q1) return;
+
+      var q1Button = finder.querySelector('[data-finder-q1="' + q1 + '"]');
+      if (!q1Button) return;
+
+      fSelectQ1(q1, q1Button);
+      fQ1FromHero = true;
+      fQ2 = null;
+      finder.querySelectorAll('#fstep2 .finder-opt').forEach(function(btn) {
+        btn.classList.remove('selected');
+      });
+      document.getElementById('fbtn2').disabled = true;
+      fGoStep2();
+    });
+
+    document.addEventListener('click', function(event) {
+      var scrollLink = event.target.closest('[data-scroll-to-finder]');
+      if (!scrollLink) return;
+      event.preventDefault();
+      scrollDepotFinderIntoView();
+    });
+  }
+
+  initFinderControls();
 })();
 
 (() => {
@@ -345,19 +358,18 @@ initFinderControls();
   });
 })();
 
-// ── Segment card switcher ──
 const segmentTitles = {
-  einzelunternehmer: 'Einzelunternehmer',
-  gruender: 'Gründer',
-  gmbh: 'GmbH & UG',
-  teams: 'Teams'
+  depot: 'Depot',
+  broker: 'Online Broker',
+  etf: 'ETF Sparplan',
+  junior: 'Junior Depot'
 };
 
 function switchSegment(seg, btn) {
   document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
 
-  const title = segmentTitles[seg] || segmentTitles.einzelunternehmer;
+  const title = segmentTitles[seg] || segmentTitles.depot;
   const titleNode = document.getElementById('segment-title');
   if (titleNode) titleNode.textContent = title;
 
@@ -383,13 +395,12 @@ function initSegmentSwitcher() {
 
 initSegmentSwitcher();
 
-// Activate first seg-card by default + handle click toggle
 (function() {
   const cards = document.querySelectorAll('.seg-card');
   if (!cards.length) return;
   cards[0].classList.add('active');
   cards.forEach(card => {
-    card.addEventListener('click', function(e) {
+    card.addEventListener('click', function() {
       cards.forEach(c => c.classList.remove('active'));
       this.classList.add('active');
     });

@@ -2,8 +2,8 @@ async function nlSubmit(){
   const email = document.getElementById('nlEmail').value.trim();
   const btn = document.getElementById('nlBtn');
   const msg = document.getElementById('nlMsg');
-  const endpoint = window.FIRMENDO_NEWSLETTER_ENDPOINT ||
-    document.querySelector('meta[name="firmendo-newsletter-endpoint"]')?.content;
+  const endpoint = window.AKTIENDEPOT24_NEWSLETTER_ENDPOINT ||
+    document.querySelector('meta[name="aktiendepot24-newsletter-endpoint"]')?.content;
 
   function showNlMsg(type, text) {
     msg.classList.remove('nl-msg-success', 'nl-msg-error');

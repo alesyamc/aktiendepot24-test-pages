@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /go/
 
-Sitemap: https://www.firmendo.de/sitemap.xml
+Sitemap: https://www.aktiendepot24.net/sitemap.xml

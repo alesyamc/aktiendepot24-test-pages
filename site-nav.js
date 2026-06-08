@@ -263,8 +263,8 @@
     initSearch();
   }
 
-  window.FirmendoSiteShell = {
-    ...(window.FirmendoSiteShell || {}),
+  window.Aktiendepot24SiteShell = {
+    ...(window.Aktiendepot24SiteShell || {}),
     init,
     initNav,
     initSearch,

@@ -36,7 +36,7 @@ function setHeroProgressSelected() {
 function handOffToMainFinder() {
   if (!hQ1) return;
 
-  document.dispatchEvent(new CustomEvent('firmendo:heroFinderSelected', {
+  document.dispatchEvent(new CustomEvent('aktiendepot24:heroFinderSelected', {
     detail: { q1: hQ1 }
   }));
 
@@ -278,7 +278,7 @@ function initFinderControls() {
     if (actionButton.dataset.finderAction === 'restart') fRestart();
   });
 
-  document.addEventListener('firmendo:heroFinderSelected', function(event) {
+  document.addEventListener('aktiendepot24:heroFinderSelected', function(event) {
     const q1 = event.detail && event.detail.q1;
     if (!q1) return;
 
@@ -335,8 +335,8 @@ initFinderControls();
     }
   }
 
-  window.FirmendoSiteShell = {
-    ...(window.FirmendoSiteShell || {}),
+  window.Aktiendepot24SiteShell = {
+    ...(window.Aktiendepot24SiteShell || {}),
     toggleFaq,
   };
 

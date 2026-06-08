@@ -1,5 +1,5 @@
 (function () {
-  var storageKey = 'firmendo_cookie_consent_v3';
+  var storageKey = 'aktiendepot24_cookie_consent_v1';
   var hotjarId = 6725714;
   var hotjarVersion = 6;
 
@@ -20,8 +20,8 @@
   }
 
   function loadHotjar() {
-    if (window.__firmendoHotjarLoaded) return;
-    window.__firmendoHotjarLoaded = true;
+    if (window.__aktiendepot24HotjarLoaded) return;
+    window.__aktiendepot24HotjarLoaded = true;
 
     (function (h, o, t, j, a, r) {
       h.hj = h.hj || function () {

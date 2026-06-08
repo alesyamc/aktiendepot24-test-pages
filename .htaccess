@@ -1,8 +1,8 @@
 # Canonical host redirect
-# Keep the public site on https://www.firmendo.de/.
+# Keep the public site on https://www.aktiendepot24.net/.
 RewriteEngine On
-RewriteCond %{HTTP_HOST} ^firmendo\.de$ [NC]
-RewriteRule ^ https://www.firmendo.de%{REQUEST_URI} [R=301,L]
+RewriteCond %{HTTP_HOST} ^aktiendepot24\.net$ [NC]
+RewriteRule ^ https://www.aktiendepot24.net%{REQUEST_URI} [R=301,L]
 
 # Affiliate redirects
 # Generated from tools/affiliate-links.txt by tools/generate-affiliate-redirects.rb

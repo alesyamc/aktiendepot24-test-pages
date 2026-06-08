@@ -1,0 +1,125 @@
+.cookie-consent {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 1000;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  width: min(720px, calc(100vw - 36px));
+  padding: 16px;
+  border: 1px solid rgba(22, 34, 52, 0.14);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 18px 50px rgba(22, 34, 52, 0.18);
+  color: #162234;
+  font-family: inherit;
+}
+
+.cookie-consent-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.cookie-consent-text a {
+  color: #2244e8;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.cookie-consent-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.cookie-consent-button,
+.cookie-settings-button {
+  min-height: 40px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cookie-consent-button {
+  padding: 0 16px;
+}
+
+.cookie-consent-button-primary {
+  background: #2244e8;
+  color: #ffffff;
+}
+
+.cookie-consent-button-secondary {
+  border-color: rgba(22, 34, 52, 0.18);
+  background: #ffffff;
+  color: #162234;
+}
+
+.cookie-settings-button {
+  all: unset;
+  box-sizing: border-box;
+  position: fixed;
+  left: 14px;
+  bottom: 14px;
+  z-index: 999;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid rgba(22, 34, 52, 0.16);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 8px 24px rgba(22, 34, 52, 0.14);
+  color: rgba(22, 34, 52, 0.78);
+  cursor: pointer;
+  opacity: 0.76;
+}
+
+.cookie-settings-button:hover,
+.cookie-settings-button:focus-visible {
+  opacity: 1;
+  color: #162234;
+}
+
+.cookie-settings-button:focus-visible {
+  outline: 2px solid rgba(34, 68, 232, 0.55);
+  outline-offset: 2px;
+}
+
+.cookie-settings-icon {
+  display: block;
+  width: 22px;
+  height: 22px;
+}
+
+@media (max-width: 640px) {
+  .cookie-consent {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    grid-template-columns: 1fr;
+    width: auto;
+    padding: 14px;
+  }
+
+  .cookie-consent-actions {
+    justify-content: stretch;
+  }
+
+  .cookie-consent-button {
+    flex: 1 1 130px;
+  }
+
+  .cookie-settings-button {
+    left: 12px;
+    bottom: 12px;
+  }
+}
